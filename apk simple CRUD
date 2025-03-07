@@ -1,0 +1,129 @@
+import java.io.*;
+import java.util.*;
+
+public class CRUDCSV {
+    private static final String FILE_PATH = "data.csv";
+    private static List<String[]> data = new ArrayList<>();
+
+    public static void main(String[] args) {
+        loadData();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            showMenu();
+            System.out.print("Pilih menu: ");
+            String choice = scanner.nextLine().toUpperCase();
+
+            switch (choice) {
+                case "C": create(scanner); break;
+                case "R": read(); break;
+                case "U": update(scanner); break;
+                case "D": delete(scanner); break;
+                case "X": saveData(); System.out.println("Data tersimpan, keluar..."); return;
+                default: System.out.println("Pilihan tidak valid.");
+            }
+        }
+    }
+
+    private static void showMenu() {
+        System.out.println("\n====================");
+        System.out.println("|    Pilih menu:   |");
+        System.out.println("| [C] : Create     |");
+        System.out.println("| [R] : Read       |");
+        System.out.println("| [U] : Update     |");
+        System.out.println("| [D] : Delete     |");
+        System.out.println("| [X] : Exit       |");
+        System.out.println("====================");
+    }
+
+    private static void loadData() {
+        data.clear();
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                data.add(line.split(","));
+            }
+        } catch (IOException e) {
+            System.out.println("File tidak ditemukan, membuat file baru...");
+        }
+    }
+
+    private static void saveData() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (String[] record : data) {
+                bw.write(String.join(",", record));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Gagal menyimpan data.");
+        }
+    }
+
+    private static void create(Scanner scanner) {
+        System.out.print("Masukkan NIM              : ");
+        String nim = scanner.nextLine();
+        for (String[] record : data) {
+            if (record[0].equals(nim)) {
+                System.out.println("NIM sudah ada!");
+                return;
+            }
+        }
+        System.out.print("Masukkan Nama             : ");
+        String nama = scanner.nextLine();
+        System.out.print("Masukkan Alamat (Kota)    : ");
+        String alamat = scanner.nextLine();
+        System.out.print("Masukkan Semester         : ");
+        String semester = scanner.nextLine();
+        System.out.print("Masukkan SKS              : ");
+        String sks = scanner.nextLine();
+        System.out.print("Masukkan IPK              : ");
+        String ipk = scanner.nextLine();
+
+        data.add(new String[]{nim, nama, alamat, semester, sks, ipk});
+        System.out.println("Data berhasil ditambahkan.");
+    }
+
+    private static void read() {
+        if (data.isEmpty()) {
+            System.out.println("Tidak ada data.");
+            return;
+        }
+        System.out.println("\nNIM | Nama | Alamat (Kota) | Semester | SKS | IPK");
+        System.out.println("--------------------------------------------------");
+        for (String[] record : data) {
+            System.out.println(record[0] + " | " + record[1] + " | " + record[2] + " | " + record[3] + " | " + record[4] + " | " + record[5]);
+        }
+    }
+
+    private static void update(Scanner scanner) {
+        System.out.print("Masukkan NIM yang akan diupdate: ");
+        String nim = scanner.nextLine();
+        for (String[] record : data) {
+            if (record[0].equals(nim)) {
+                System.out.print("Masukkan Nama baru            : ");
+                record[1] = scanner.nextLine();
+                System.out.print("Masukkan Alamat (Kota) baru   : ");
+                record[2] = scanner.nextLine();
+                System.out.print("Masukkan Semester baru        : ");
+                record[3] = scanner.nextLine();
+                System.out.print("Masukkan SKS baru             : ");
+                record[4] = scanner.nextLine();
+                System.out.print("Masukkan IPK baru             : ");
+                record[5] = scanner.nextLine();
+                System.out.println("Data berhasil diperbarui.");
+                return;
+            }
+        }
+        System.out.println("NIM tidak ditemukan.");
+    }
+
+    private static void delete(Scanner scanner) {
+        System.out.print("Masukkan NIM yang akan dihapus        : ");
+        String nim = scanner.nextLine();
+        if (data.removeIf(record -> record[0].equals(nim))) {
+            System.out.println("Data berhasil dihapus.");
+        } else {
+            System.out.println("NIM tidak ditemukan.");
+        }
+    }
+}
